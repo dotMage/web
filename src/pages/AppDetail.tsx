@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { formatDate } from '../utils';
 import type { EnvInfo, RevisionMeta } from '../api/client';
 
 export default function AppDetail() {
@@ -111,7 +112,7 @@ export default function AppDetail() {
                 {revisions.map((r) => (
                   <tr key={r.rev_number}>
                     <td><strong>{r.rev_number}</strong></td>
-                    <td>{new Date(r.created_at).toLocaleString()}</td>
+                    <td>{formatDate(r.created_at)}</td>
                     <td style={{ fontFamily: 'var(--mono)', fontSize: 13 }}>
                       {r.device_id.slice(0, 12)}...
                     </td>

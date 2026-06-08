@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { formatDate } from '../utils';
 import type { AppInfo } from '../api/client';
 
 export default function Apps() {
@@ -48,7 +49,7 @@ export default function Apps() {
                 <Link to={`/apps/${encodeURIComponent(app.name)}`}>{app.name}</Link>
               </td>
               <td>{app.environments.length}</td>
-              <td>{new Date(app.updated_at).toLocaleString()}</td>
+              <td>{formatDate(app.updated_at)}</td>
             </tr>
           ))}
         </tbody>

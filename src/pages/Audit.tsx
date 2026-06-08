@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, type FormEvent } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { formatDate } from '../utils';
 import type { AuditEvent } from '../api/client';
 
 export default function Audit() {
@@ -87,7 +88,7 @@ export default function Audit() {
             {events.map((ev) => (
               <tr key={ev.id}>
                 <td style={{ whiteSpace: 'nowrap' }}>
-                  {new Date(ev.at).toLocaleString()}
+                  {formatDate(ev.at)}
                 </td>
                 <td>
                   <code style={{ fontSize: 13 }}>{ev.action}</code>

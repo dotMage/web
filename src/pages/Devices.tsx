@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { formatDate } from '../utils';
 import type { DeviceInfo } from '../api/client';
 
 export default function Devices() {
@@ -58,9 +59,17 @@ export default function Devices() {
                   textDecoration: d.revoked ? 'line-through' : 'none',
                 }}
               >
-                <td>{d.name}</td>
-                <td>{d.last_seen ? new Date(d.last_seen).toLocaleString() : '—'}</td>
-                <td>{new Date(d.expires_at).toLocaleString()}</td>
+                <td>
+                  {d.name === 'unknown' ? (
+                    <span style={{ fontStyle: 'italic', fontFamily: 'var(--mono)', fontSize: 13 }}>
+                      {d.id.slice(0, 12)}...
+                    </span>
+                  ) : (
+                    d.name
+                  )}
+                </td>
+                <td>{formatDate(d.last_seen)}</td>
+                <td>{formatDate(d.expires_at)}</td>
                 <td>
                   <span
                     style={{
