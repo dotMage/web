@@ -1,108 +1,146 @@
-import { useEffect, useState, useCallback, type FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils';
-import type { AuditEvent } from '../api/client';
+import { CmdChip } from '../components/CmdChip';
+import {
+  IconChevD,
+  IconSearch,
+  IconAudit as IconAuditIcon,
+  IconUpload,
+  IconDownload,
+  IconUserCheck,
+  IconRollback,
+  IconDevices,
+  IconBan,
+  IconPlus,
+} from '../components/Icons';
+import type { AuditEvent, AppInfo } from '../api/client';
+
+const ACTION_KIND: Record<string, string> = {
+  auth: 'auth',
+  push: 'write',
+  pull: 'read',
+  rollback: 'write',
+  'device.registered': 'device',
+  'device.revoked': 'danger',
+  'app.created': 'create',
+  'env.created': 'create',
+};
+
+const AUDIT_ICON: Record<string, typeof IconUpload> = {
+  auth: IconUserCheck,
+  push: IconUpload,
+  pull: IconDownload,
+  rollback: IconRollback,
+  'device.registered': IconDevices,
+  'device.revoked': IconBan,
+  'app.created': IconPlus,
+  'env.created': IconPlus,
+};
 
 export default function Audit() {
   const { client } = useAuth();
   const [events, setEvents] = useState<AuditEvent[]>([]);
+  const [apps, setApps] = useState<AppInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [appFilter, setAppFilter] = useState('');
-  const [activeFilter, setActiveFilter] = useState<string | undefined>(undefined);
-
-  const fetchAudit = useCallback((appName: string | undefined, c: typeof client) => {
-    if (!c) return;
-    c.getAudit(appName ? { app: appName } : undefined)
-      .then(setEvents)
-      .catch((e) => setError(String(e)))
-      .finally(() => setLoading(false));
-  }, []);
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     if (!client) return;
-    fetchAudit(activeFilter, client);
-  }, [client, activeFilter, fetchAudit]);
+    client.getApps().then(setApps).catch(() => {});
+  }, [client]);
 
-  function handleFilter(e: FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setActiveFilter(appFilter.trim() || undefined);
+  useEffect(() => {
+    if (!client) return;
+    let cancelled = false;
+    const appName = filter === 'all' ? undefined : filter;
+    client
+      .getAudit(appName ? { app: appName } : undefined)
+      .then((data) => { if (!cancelled) setEvents(data); })
+      .catch((e) => { if (!cancelled) setError(String(e)); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [client, filter]);
+
+  if (error) {
+    return <div className="err-banner">{error}</div>;
   }
-
-  if (error) return <p style={{ color: '#e53e3e' }}>{error}</p>;
 
   return (
     <div>
-      <h2>Audit log</h2>
-      <form onSubmit={handleFilter} style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
-        <input
-          type="text"
-          placeholder="Filter by app name"
-          value={appFilter}
-          onChange={(e) => setAppFilter(e.target.value)}
-          style={{
-            padding: '6px 10px',
-            border: '1px solid var(--border)',
-            borderRadius: 6,
-            background: 'var(--bg)',
-            color: 'var(--text-h)',
-            fontSize: 14,
-            flex: 1,
-            maxWidth: 260,
-          }}
-        />
-        <button
-          type="submit"
-          style={{
-            padding: '6px 14px',
-            border: '1px solid var(--border)',
-            borderRadius: 6,
-            background: 'transparent',
-            color: 'var(--text-h)',
-            cursor: 'pointer',
-            fontSize: 14,
-          }}
-        >
-          Filter
-        </button>
-      </form>
-
-      {loading ? (
-        <p>Loading...</p>
-      ) : events.length === 0 ? (
-        <p style={{ color: 'var(--text)' }}>No audit events.</p>
-      ) : (
-        <table className="dm-table">
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Action</th>
-              <th>App</th>
-              <th>Env</th>
-              <th>Rev</th>
-              <th>Device</th>
-            </tr>
-          </thead>
-          <tbody>
-            {events.map((ev) => (
-              <tr key={ev.id}>
-                <td style={{ whiteSpace: 'nowrap' }}>
-                  {formatDate(ev.at)}
-                </td>
-                <td>
-                  <code style={{ fontSize: 13 }}>{ev.action}</code>
-                </td>
-                <td>{ev.app_name ?? '---'}</td>
-                <td>{ev.env_name ?? '---'}</td>
-                <td>{ev.rev_number ?? '---'}</td>
-                <td style={{ fontFamily: 'var(--mono)', fontSize: 13 }}>
-                  {ev.device_id ? ev.device_id.slice(0, 12) + '...' : '---'}
-                </td>
-              </tr>
+      <div className="ph">
+        <h1>Audit log</h1>
+        <span className="ct">{events.length}</span>
+        <div className="selwrap" style={{ marginLeft: 'auto', marginRight: 12 }}>
+          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+            <option value="all">ALL APPS</option>
+            {apps.map((a) => (
+              <option key={a.id} value={a.name}>
+                {a.name}
+              </option>
             ))}
-          </tbody>
-        </table>
+          </select>
+          <IconChevD size={15} />
+        </div>
+        <CmdChip
+          cmd={filter === 'all' ? 'dmage audit' : `dmage audit --app ${filter}`}
+        />
+      </div>
+      {loading ? (
+        <div className="loading-wrap"><span className="spin" /> Loading...</div>
+      ) : events.length === 0 ? (
+        <div className="empty">
+          <div className="eic"><IconAuditIcon size={26} /></div>
+          <h3>No events yet</h3>
+          <p>
+            Every auth, push, pull, rollback and device change is recorded here
+            as soon as it happens.
+          </p>
+        </div>
+      ) : (
+        <div className="tbl">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Action</th>
+                <th>App</th>
+                <th>Env</th>
+                <th>Rev</th>
+                <th>Device</th>
+              </tr>
+            </thead>
+            <tbody>
+              {events.map((ev) => {
+                const kindClass = ACTION_KIND[ev.action] || '';
+                const Ic = AUDIT_ICON[ev.action] || IconSearch;
+                return (
+                  <tr key={ev.id}>
+                    <td className="faint">{formatDate(ev.at)}</td>
+                    <td>
+                      <span className={'chip ' + kindClass}>
+                        <Ic size={12} /> {ev.action}
+                      </span>
+                    </td>
+                    <td>{ev.app_name || <span className="faint">--</span>}</td>
+                    <td className="muted">
+                      {ev.env_name || <span className="faint">--</span>}
+                    </td>
+                    <td className="muted">
+                      {ev.rev_number ? '#' + ev.rev_number : <span className="faint">--</span>}
+                    </td>
+                    <td>
+                      <span className="chip">
+                        {ev.device_id ? ev.device_id.slice(0, 12) : '--'}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

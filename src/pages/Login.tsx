@@ -1,71 +1,87 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Mark, IconBan, IconTerminal } from '../components/Icons';
 
 export default function Login() {
   const [value, setValue] = useState('');
-  const [error, setError] = useState('');
+  const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle');
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  function handleSubmit(e?: FormEvent) {
+    e?.preventDefault();
     const trimmed = value.trim();
     if (!trimmed) {
-      setError('Token is required');
+      setState('error');
       return;
     }
-    login(trimmed);
-    navigate('/');
+    setState('loading');
+    // Small delay for UX feedback, then authenticate
+    setTimeout(() => {
+      if (trimmed.length < 6) {
+        setState('error');
+        return;
+      }
+      login(trimmed);
+      navigate('/');
+    }, 400);
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: '120px auto', padding: '0 20px' }}>
-      <h1 style={{ fontSize: 32, marginBottom: 8 }}>dotMage</h1>
-      <p style={{ marginBottom: 24, color: 'var(--text)' }}>
-        Enter your device token to access the admin panel.
-      </p>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="password"
-          placeholder="Device token"
-          value={value}
-          onChange={(e) => {
-            setValue(e.target.value);
-            setError('');
-          }}
-          style={{
-            width: '100%',
-            padding: 10,
-            marginBottom: 8,
-            border: '1px solid var(--border)',
-            borderRadius: 6,
-            background: 'var(--bg)',
-            color: 'var(--text-h)',
-            fontFamily: 'var(--mono)',
-            fontSize: 14,
-            boxSizing: 'border-box',
-          }}
-        />
-        {error && (
-          <p style={{ color: '#e53e3e', fontSize: 14, marginBottom: 8 }}>{error}</p>
-        )}
-        <button
-          type="submit"
-          style={{
-            width: '100%',
-            padding: 10,
-            border: 'none',
-            borderRadius: 6,
-            background: 'var(--accent)',
-            color: '#fff',
-            fontSize: 16,
-            cursor: 'pointer',
-          }}
-        >
-          Login
-        </button>
-      </form>
+    <div className="login">
+      <div className="lbox">
+        <div className="hd">
+          <span className="mark"><Mark size={28} /></span>
+          <span className="bn">dot<b>Mage</b></span>
+          <span className="v">v0.1.0</span>
+        </div>
+        <div className="bd">
+          <h2>Pair this device</h2>
+          <div className="sub">
+            dotMage has no password. You authorize this browser with a one-time device token from the CLI.
+          </div>
+          <label className="lbl-in">// device token</label>
+          <div className={'tokfield' + (state === 'error' ? ' bad' : '')}>
+            <span className="pre">dmage_tok_</span>
+            <input
+              value={value}
+              onChange={(e) => {
+                setValue(e.target.value);
+                if (state === 'error') setState('idle');
+              }}
+              placeholder="paste the rest..."
+              spellCheck={false}
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+            />
+          </div>
+          {state === 'error' && (
+            <div className="lerr">
+              <IconBan size={15} /> Token rejected -- check it was copied in full.
+            </div>
+          )}
+          <div className="lhint">
+            <IconTerminal size={16} style={{ flex: '0 0 auto' }} />
+            <span>
+              Run <code>dmage login</code> on this machine. Copy the token it prints, paste it above.
+              Server never sees your secrets -- only ciphertext.
+            </span>
+          </div>
+          <button
+            className="btn ink lbtn"
+            onClick={handleSubmit}
+            disabled={state === 'loading'}
+          >
+            {state === 'loading' ? (
+              <>
+                <span className="spin" /> Verifying...
+              </>
+            ) : (
+              <>Verify device</>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

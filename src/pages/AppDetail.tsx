@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils';
+import { CmdChip, CmdLine } from '../components/CmdChip';
+import { IconArrowL, IconClock, IconRollback, IconLock } from '../components/Icons';
 import type { EnvInfo, RevisionMeta } from '../api/client';
 
 export default function AppDetail() {
   const { name } = useParams<{ name: string }>();
   const { client } = useAuth();
+  const navigate = useNavigate();
   const [envs, setEnvs] = useState<EnvInfo[]>([]);
   const [selectedEnv, setSelectedEnv] = useState<string | null>(null);
   const [revisions, setRevisions] = useState<RevisionMeta[]>([]);
   const [loading, setLoading] = useState(true);
   const [revLoading, setRevLoading] = useState(false);
   const [error, setError] = useState('');
-  const [revKey, setRevKey] = useState(0);
 
   useEffect(() => {
     if (!client || !name) return;
@@ -22,7 +24,8 @@ export default function AppDetail() {
       .then((data) => {
         setEnvs(data);
         if (data.length > 0) {
-          setSelectedEnv(data[0].name);
+          const prod = data.find((e) => e.name === 'prod');
+          setSelectedEnv(prod ? prod.name : data[data.length - 1].name);
         }
       })
       .catch((e) => setError(String(e)))
@@ -34,99 +37,132 @@ export default function AppDetail() {
     let cancelled = false;
     client
       .getRevisions(name, selectedEnv)
-      .then((data) => { if (!cancelled) { setRevisions(data); setRevLoading(false); } })
-      .catch((e) => { if (!cancelled) { setError(String(e)); setRevLoading(false); } });
-    return () => { cancelled = true; };
-  }, [client, name, selectedEnv, revKey]);
+      .then((data) => {
+        if (!cancelled) {
+          setRevisions(data);
+          setRevLoading(false);
+        }
+      })
+      .catch((e) => {
+        if (!cancelled) {
+          setError(String(e));
+          setRevLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [client, name, selectedEnv]);
 
   function selectEnv(envName: string) {
     setSelectedEnv(envName);
     setRevLoading(true);
     setRevisions([]);
-    setRevKey((k) => k + 1);
   }
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p style={{ color: '#e53e3e' }}>{error}</p>;
+  if (loading) {
+    return <div className="loading-wrap"><span className="spin" /> Loading...</div>;
+  }
+  if (error) {
+    return <div className="err-banner">{error}</div>;
+  }
 
   return (
     <div>
-      <p style={{ marginBottom: 8 }}>
-        <Link to="/" style={{ color: 'var(--accent)' }}>Apps</Link>
-        {' / '}
-        <strong style={{ color: 'var(--text-h)' }}>{name}</strong>
-      </p>
-
-      <h2>Environments</h2>
-
-      {envs.length === 0 ? (
-        <p style={{ color: 'var(--text)' }}>No environments.</p>
-      ) : (
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+      <div className="ph">
+        <button
+          className="btn ghost"
+          onClick={() => navigate('/')}
+          style={{ padding: '6px 9px' }}
+        >
+          <IconArrowL size={15} /> Apps
+        </button>
+        <h1>{name}</h1>
+        {selectedEnv && (
+          <CmdChip cmd={`dmage pull ${name} --env ${selectedEnv}`} />
+        )}
+      </div>
+      <div className="dgrid">
+        <div className="envcol">
+          <div className="envcol-lbl">Environments</div>
           {envs.map((env) => (
             <button
               key={env.id}
+              className={'envi' + (env.name === selectedEnv ? ' on' : '')}
               onClick={() => selectEnv(env.name)}
-              style={{
-                padding: '6px 14px',
-                border: '1px solid var(--border)',
-                borderRadius: 6,
-                background: selectedEnv === env.name ? 'var(--accent)' : 'transparent',
-                color: selectedEnv === env.name ? '#fff' : 'var(--text-h)',
-                cursor: 'pointer',
-                fontSize: 14,
-              }}
             >
-              {env.name}
-              <span style={{
-                marginLeft: 6,
-                fontSize: 12,
-                opacity: 0.7,
-              }}>
-                rev {env.latest_rev}
-              </span>
+              <span>{env.name}</span>
+              <span className="rv">{env.latest_rev} REV</span>
             </button>
           ))}
         </div>
-      )}
-
-      {selectedEnv && (
-        <>
-          <h2>Revision history — {selectedEnv}</h2>
+        <div>
           {revLoading ? (
-            <p>Loading revisions...</p>
-          ) : revisions.length === 0 ? (
-            <p style={{ color: 'var(--text)' }}>No revisions.</p>
+            <div className="loading-wrap"><span className="spin" /> Loading revisions...</div>
+          ) : selectedEnv && revisions.length === 0 ? (
+            <div className="empty">
+              <div className="eic"><IconClock size={26} /></div>
+              <h3>No revisions in {selectedEnv}</h3>
+              <p>
+                This environment has no pushes yet. From a checkout with the
+                right .env, run:
+              </p>
+              <CmdLine cmd={`dmage push ${name} --env ${selectedEnv}`} />
+            </div>
           ) : (
-            <table className="dm-table">
-              <thead>
-                <tr>
-                  <th>Rev</th>
-                  <th>Timestamp</th>
-                  <th>Device</th>
-                  <th>Hash</th>
-                  <th>Rollback of</th>
-                </tr>
-              </thead>
-              <tbody>
-                {revisions.map((r) => (
-                  <tr key={r.rev_number}>
-                    <td><strong>{r.rev_number}</strong></td>
-                    <td>{formatDate(r.created_at)}</td>
-                    <td style={{ fontFamily: 'var(--mono)', fontSize: 13 }}>
-                      {r.device_id.slice(0, 12)}...
-                    </td>
-                    <td style={{ fontFamily: 'var(--mono)', fontSize: 13 }}>
-                      {r.content_hash ? r.content_hash.slice(0, 12) + '...' : '—'}
-                    </td>
-                    <td>{r.rollback_of ?? '—'}</td>
+            <div className="tbl">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rev</th>
+                    <th>Created</th>
+                    <th>Device</th>
+                    <th>Hash</th>
+                    <th>Note</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {revisions.map((r) => (
+                    <tr key={r.rev_number}>
+                      <td><span className="nm-strong">#{r.rev_number}</span></td>
+                      <td>{formatDate(r.created_at)}</td>
+                      <td>
+                        <span className="chip">{r.device_id.slice(0, 12)}</span>
+                      </td>
+                      <td className="muted">
+                        {r.content_hash ? r.content_hash.slice(0, 12) : '--'}
+                      </td>
+                      <td>
+                        {r.rollback_of ? (
+                          <span className="rollback">
+                            <IconRollback size={12} /> rollback of #{r.rollback_of}
+                          </span>
+                        ) : (
+                          <span className="faint">--</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
-        </>
-      )}
+          <div className="secnote">
+            <div className="ic"><IconLock size={22} /></div>
+            <div className="tx">
+              <div className="t">Secret values never appear here</div>
+              <div className="d">
+                Revisions are encrypted on your devices before upload. The server
+                stores only ciphertext + metadata and{' '}
+                <b>cannot decrypt them</b>. To read values, decrypt locally:{' '}
+                {selectedEnv && (
+                  <CmdLine cmd={`dmage pull ${name} --env ${selectedEnv}`} />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
