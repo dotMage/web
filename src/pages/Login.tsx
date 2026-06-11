@@ -9,7 +9,7 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  function handleSubmit(e?: FormEvent) {
+  async function handleSubmit(e?: FormEvent) {
     e?.preventDefault();
     const trimmed = value.trim();
     if (!trimmed) {
@@ -17,15 +17,15 @@ export default function Login() {
       return;
     }
     setState('loading');
-    // Small delay for UX feedback, then authenticate
-    setTimeout(() => {
-      if (trimmed.length < 6) {
-        setState('error');
-        return;
-      }
-      login(trimmed);
+    try {
+      const fullToken = trimmed.startsWith('dmage_etok_')
+        ? trimmed
+        : `dmage_etok_${trimmed}`;
+      await login(fullToken);
       navigate('/');
-    }, 400);
+    } catch {
+      setState('error');
+    }
   }
 
   return (
@@ -39,11 +39,11 @@ export default function Login() {
         <div className="bd">
           <h2>Pair this device</h2>
           <div className="sub">
-            dotMage has no password. You authorize this browser with a one-time device token from the CLI.
+            dotMage has no password. You authorize this browser with a one-time login code from the CLI.
           </div>
-          <label className="lbl-in">// device token</label>
+          <label className="lbl-in">// login code</label>
           <div className={'tokfield' + (state === 'error' ? ' bad' : '')}>
-            <span className="pre">dmage_tok_</span>
+            <span className="pre">dmage_etok_</span>
             <input
               value={value}
               onChange={(e) => {
@@ -57,13 +57,13 @@ export default function Login() {
           </div>
           {state === 'error' && (
             <div className="lerr">
-              <IconBan size={15} /> Token rejected -- check it was copied in full.
+              <IconBan size={15} /> Login code expired or invalid. Run <code>dmage token</code> again.
             </div>
           )}
           <div className="lhint">
             <IconTerminal size={16} style={{ flex: '0 0 auto' }} />
             <span>
-              Run <code>dmage login</code> on this machine. Copy the token it prints, paste it above.
+              Run <code>dmage token</code> on any authenticated device. Copy the code it prints, paste it above.
               Server never sees your secrets -- only ciphertext.
             </span>
           </div>

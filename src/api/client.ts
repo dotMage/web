@@ -44,17 +44,30 @@ export interface AuditEvent {
   at: string;
 }
 
+const REFRESH_KEY = 'dotmage_refresh_token';
+const DEVICE_KEY = 'dotmage_device_token';
+
 export class DotMageClient {
   private token: string;
   private baseUrl: string;
+  private onTokenRefresh?: (dt: string, rt: string) => void;
+  private onAuthFailure?: () => void;
+  private refreshPromise: Promise<boolean> | null = null;
 
-  constructor(token: string, baseUrl = BASE) {
+  constructor(
+    token: string,
+    baseUrl = BASE,
+    onTokenRefresh?: (dt: string, rt: string) => void,
+    onAuthFailure?: () => void,
+  ) {
     this.token = token;
     this.baseUrl = baseUrl;
+    this.onTokenRefresh = onTokenRefresh;
+    this.onAuthFailure = onAuthFailure;
   }
 
-  private async request<T>(path: string, options?: RequestInit): Promise<T> {
-    const resp = await fetch(`${this.baseUrl}/api/v1${path}`, {
+  private doFetch(path: string, options?: RequestInit) {
+    return fetch(`${this.baseUrl}/api/v1${path}`, {
       ...options,
       headers: {
         'Authorization': `Bearer ${this.token}`,
@@ -62,11 +75,60 @@ export class DotMageClient {
         ...options?.headers,
       },
     });
+  }
+
+  private async request<T>(path: string, options?: RequestInit): Promise<T> {
+    let resp = await this.doFetch(path, options);
+
+    // Auto-refresh on 401
+    if (resp.status === 401) {
+      const ok = await this.tryRefresh();
+      if (ok) {
+        resp = await this.doFetch(path, options);
+      }
+      if (resp.status === 401) {
+        this.onAuthFailure?.();
+        throw new Error('Session expired');
+      }
+    }
+
     if (!resp.ok) {
       const text = await resp.text().catch(() => '');
       throw new Error(`HTTP ${resp.status}: ${text}`);
     }
     return resp.json();
+  }
+
+  private async tryRefresh(): Promise<boolean> {
+    // Deduplicate concurrent refresh calls
+    if (this.refreshPromise) return this.refreshPromise;
+    this.refreshPromise = this._doRefresh();
+    try {
+      return await this.refreshPromise;
+    } finally {
+      this.refreshPromise = null;
+    }
+  }
+
+  private async _doRefresh(): Promise<boolean> {
+    const rt = localStorage.getItem(REFRESH_KEY);
+    if (!rt) return false;
+    try {
+      const resp = await fetch(`${this.baseUrl}/api/v1/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: rt }),
+      });
+      if (!resp.ok) return false;
+      const data = await resp.json();
+      this.token = data.device_token;
+      localStorage.setItem(DEVICE_KEY, data.device_token);
+      localStorage.setItem(REFRESH_KEY, data.refresh_token);
+      this.onTokenRefresh?.(data.device_token, data.refresh_token);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async getApps(): Promise<AppInfo[]> {
