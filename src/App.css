@@ -205,6 +205,10 @@ tbody tr.click { cursor: pointer }
 tbody tr.click:hover td { background: var(--lime) }
 
 .nm-strong { font-weight: 800; font-size: 14px }
+
+.folder-row td { background: var(--paper2); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--dim); padding: 8px 14px !important }
+.folder-icon { color: var(--faint); font-weight: 400 }
+.folder-crumb { color: var(--faint); font-weight: 600 }
 .muted { color: var(--dim) }
 .faint { color: var(--faint) }
 

@@ -77,7 +77,12 @@ export default function AppDetail() {
         >
           <IconArrowL size={15} /> Apps
         </button>
-        <h1>{name}</h1>
+        <h1>
+          {name && name.includes('/') && (
+            <span className="folder-crumb">{name.substring(0, name.lastIndexOf('/'))}/</span>
+          )}
+          {name && name.includes('/') ? name.substring(name.lastIndexOf('/') + 1) : name}
+        </h1>
         {selectedEnv && (
           <CmdChip cmd={`dmage pull ${name} --env ${selectedEnv}`} />
         )}
