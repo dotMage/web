@@ -2,11 +2,27 @@ import { useState } from 'react';
 import { IconCopy, IconCheck } from './Icons';
 import { useToast } from '../context/ToastContext';
 
-function copy(text: string) {
+async function copy(text: string): Promise<boolean> {
   try {
-    navigator.clipboard?.writeText(text);
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
   } catch {
-    /* ignore */
+    /* clipboard API failed, try fallback */
+  }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch {
+    return false;
   }
 }
 
@@ -14,11 +30,15 @@ export function CmdChip({ cmd }: { cmd: string }) {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
-  const run = () => {
-    copy(cmd);
-    setCopied(true);
-    toast('Copied to clipboard', '$ ' + cmd);
-    setTimeout(() => setCopied(false), 1100);
+  const run = async () => {
+    const ok = await copy(cmd);
+    if (ok) {
+      setCopied(true);
+      toast('Copied to clipboard', '$ ' + cmd);
+      setTimeout(() => setCopied(false), 1100);
+    } else {
+      toast('Failed to copy', undefined, 'danger');
+    }
   };
 
   return (
@@ -33,11 +53,15 @@ export function CmdLine({ cmd }: { cmd: string }) {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
-  const run = () => {
-    copy(cmd);
-    setCopied(true);
-    toast('Copied to clipboard', '$ ' + cmd);
-    setTimeout(() => setCopied(false), 1100);
+  const run = async () => {
+    const ok = await copy(cmd);
+    if (ok) {
+      setCopied(true);
+      toast('Copied to clipboard', '$ ' + cmd);
+      setTimeout(() => setCopied(false), 1100);
+    } else {
+      toast('Failed to copy', undefined, 'danger');
+    }
   };
 
   return (
