@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mark, IconApps, IconDevices, IconAudit, IconLogout, IconCpu } from './Icons';
+import CmdSidebar from './CmdSidebar';
 
 const NAV_ITEMS: Array<{ to: string; icon: typeof IconApps; label: string; matchPrefix?: string }> = [
   { to: '/', icon: IconApps, label: 'Apps', matchPrefix: '/apps' },
@@ -70,7 +71,10 @@ export default function Layout() {
         </span>
       </div>
       <div className="body">
-        <Outlet />
+        <div className="main-content">
+          <Outlet />
+        </div>
+        <CmdSidebar />
       </div>
     </div>
   );

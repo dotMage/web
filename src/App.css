@@ -137,6 +137,13 @@
   flex: 1;
   overflow: auto;
   padding: 26px;
+  display: flex;
+  gap: 26px;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
 }
 
 .body::-webkit-scrollbar { width: 12px }
@@ -753,3 +760,60 @@ select {
 
 /* ===== security note in detail ===== */
 .secnote .d .cmdline { margin-top: 0; padding: 2px 7px; font-size: 11px; vertical-align: middle }
+
+/* ===== command sidebar ===== */
+.cmdsb {
+  flex: 0 0 220px;
+  align-self: flex-start;
+  position: sticky;
+  top: 0;
+  border: 2px solid var(--line);
+  background: var(--paper2);
+}
+
+.cmdsb-title {
+  padding: 10px 14px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+  border-bottom: 2px solid var(--line);
+  background: var(--ink);
+  color: var(--lime);
+}
+
+.cmdsb-group {
+  padding: 10px;
+  border-bottom: 1px solid rgba(22,20,13,.15);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cmdsb-group:last-child { border-bottom: none }
+
+.cmdsb-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+  margin-bottom: 2px;
+}
+
+.cmdsb .cmd {
+  font-size: 10px;
+  padding: 4px 8px;
+  border-width: 1.5px;
+  width: 100%;
+  text-align: left;
+}
+
+.cmdsb .cmd .pmt { font-size: 10px }
+.cmdsb .cmd b { font-size: 10px }
+.cmdsb .cmd .cpy { margin-left: auto }
+
+@media (max-width: 960px) {
+  .cmdsb { display: none }
+}
