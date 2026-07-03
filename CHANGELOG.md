@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- Users page: team members and pending invitations (team-mode servers); shows a friendly notice on solo-mode servers.
+- Audit log now shows which user performed each action.
 
 ### Changed
 

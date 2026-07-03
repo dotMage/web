@@ -1,11 +1,12 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mark, IconApps, IconDevices, IconAudit, IconLogout, IconCpu } from './Icons';
+import { Mark, IconApps, IconDevices, IconUsers, IconAudit, IconLogout, IconCpu } from './Icons';
 import CmdSidebar from './CmdSidebar';
 
 const NAV_ITEMS: Array<{ to: string; icon: typeof IconApps; label: string; matchPrefix?: string }> = [
   { to: '/', icon: IconApps, label: 'Apps', matchPrefix: '/apps' },
   { to: '/devices', icon: IconDevices, label: 'Devices' },
+  { to: '/users', icon: IconUsers, label: 'Users' },
   { to: '/audit', icon: IconAudit, label: 'Audit' },
 ];
 

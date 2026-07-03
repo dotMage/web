@@ -37,11 +37,34 @@ export interface DeviceInfo {
 export interface AuditEvent {
   id: string;
   device_id: string | null;
+  user: string | null;
   action: string;
   app_name: string | null;
   env_name: string | null;
   rev_number: number | null;
   at: string;
+}
+
+export interface UserInfo {
+  id: string;
+  name: string;
+  role: string;
+  status: string;
+  key_gen: number;
+  created_at: string;
+}
+
+export interface InvitationInfo {
+  id: string;
+  name: string;
+  role: string;
+  status: string;
+  expires_at: string;
+}
+
+export interface UsersResponse {
+  users: UserInfo[];
+  invitations: InvitationInfo[];
 }
 
 const REFRESH_KEY = 'dotmage_refresh_token';
@@ -170,5 +193,15 @@ export class DotMageClient {
     const path = `/audit${qs ? `?${qs}` : ''}`;
     const data = await this.request<{ events: AuditEvent[] }>(path);
     return data.events;
+  }
+
+  /** Returns null when the server runs in solo mode (endpoint 404s). */
+  async getUsers(): Promise<UsersResponse | null> {
+    try {
+      return await this.request<UsersResponse>('/users');
+    } catch (e) {
+      if (e instanceof Error && e.message.startsWith('HTTP 404')) return null;
+      throw e;
+    }
   }
 }

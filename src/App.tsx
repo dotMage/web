@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Apps from './pages/Apps';
 import AppDetail from './pages/AppDetail';
 import Devices from './pages/Devices';
+import Users from './pages/Users';
 import Audit from './pages/Audit';
 import './App.css';
 
@@ -30,6 +31,7 @@ function AppRoutes() {
         <Route path="/" element={<Apps />} />
         <Route path="/apps/:name" element={<AppDetail />} />
         <Route path="/devices" element={<Devices />} />
+        <Route path="/users" element={<Users />} />
         <Route path="/audit" element={<Audit />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -105,6 +105,7 @@ export default function Audit() {
               <tr>
                 <th>Time</th>
                 <th>Action</th>
+                <th>User</th>
                 <th>App</th>
                 <th>Env</th>
                 <th>Rev</th>
@@ -123,6 +124,7 @@ export default function Audit() {
                         <Ic size={12} /> {ev.action}
                       </span>
                     </td>
+                    <td>{ev.user || <span className="faint">—</span>}</td>
                     <td>{ev.app_name || <span className="faint">--</span>}</td>
                     <td className="muted">
                       {ev.env_name || <span className="faint">--</span>}

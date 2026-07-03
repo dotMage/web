@@ -147,6 +147,17 @@ export function IconUserCheck(p: IconProps) {
   );
 }
 
+export function IconUsers(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M3.5 20a5.5 5.5 0 0 1 11 0" />
+      <path d="M16 4.8a3.5 3.5 0 0 1 0 6.4" />
+      <path d="M17.5 15.2a5.5 5.5 0 0 1 3 4.8" />
+    </Icon>
+  );
+}
+
 export function IconBan(p: IconProps) {
   return (
     <Icon {...p}>
