@@ -1,0 +1,32 @@
+# Changelog
+
+All notable changes to dotmage-web (admin panel) are documented here.
+Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [Unreleased]
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Security
+
+## 2026-07-01
+
+### Added
+- Command sidebar with contextual quick commands.
+
+### Fixed
+- Clipboard copy works across browsers.
+
+## 2026-06-11
+
+### Added
+- Folder grouping in the apps table + folder-aware breadcrumbs.
+- Auto-refreshing tokens, enrollment-based login.
+
+## 2026-06-09
+
+Initial release: login, apps, devices, audit log; Ledger design; separate Docker image.
