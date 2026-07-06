@@ -18,6 +18,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Security
 
+## 2026-07-06
+
+### Added
+- Header shows the current user (name + role + device) instead of a hardcoded "admin".
+- Browser tab and header show the server's advertised name so multiple team panels are
+  distinguishable at a glance.
+
 ## 2026-07-01
 
 ### Added
