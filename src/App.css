@@ -49,6 +49,16 @@
 
 .brand .mark { width: 30px; height: 30px; flex: 0 0 30px }
 .brand .bn { font-weight: 800; font-size: 17px; letter-spacing: -0.02em }
+.brand .team-tag {
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  background: var(--lime, #c2f53f);
+  color: var(--ink, #16140d);
+  border: 1.5px solid var(--line);
+}
 .brand .bn b { background: var(--lime); padding: 0 3px }
 
 .top .nav { display: flex }

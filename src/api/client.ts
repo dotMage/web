@@ -67,6 +67,22 @@ export interface UsersResponse {
   invitations: InvitationInfo[];
 }
 
+export interface HealthInfo {
+  status: string;
+  version: string;
+  account_exists: boolean;
+  features: string[];
+  server_name?: string;
+}
+
+export interface WhoamiInfo {
+  user_id: string | null;
+  name: string;
+  role: string;
+  device_id: string;
+  device_name: string;
+}
+
 const REFRESH_KEY = 'dotmage_refresh_token';
 const DEVICE_KEY = 'dotmage_device_token';
 
@@ -193,6 +209,18 @@ export class DotMageClient {
     const path = `/audit${qs ? `?${qs}` : ''}`;
     const data = await this.request<{ events: AuditEvent[] }>(path);
     return data.events;
+  }
+
+  /** Server capabilities + advertised name (public, no auth needed). */
+  async getHealth(): Promise<HealthInfo> {
+    const resp = await fetch(`${this.baseUrl}/health`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return resp.json();
+  }
+
+  /** Identity of the current device/user (B.9). */
+  async getWhoami(): Promise<WhoamiInfo> {
+    return this.request<WhoamiInfo>('/whoami');
   }
 
   /** Returns null when the server runs in solo mode (endpoint 404s). */

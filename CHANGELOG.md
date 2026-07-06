@@ -8,6 +8,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 - Users page: team members and pending invitations (team-mode servers); shows a friendly notice on solo-mode servers.
 - Audit log now shows which user performed each action.
+- Header shows who you are (name + role + device) instead of a hardcoded "admin".
+- Browser tab and header show the server's advertised name (`DOTMAGE_SERVER_NAME`) so
+  multiple team panels are distinguishable at a glance.
 
 ### Changed
 

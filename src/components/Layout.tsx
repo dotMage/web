@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mark, IconApps, IconDevices, IconUsers, IconAudit, IconLogout, IconCpu } from './Icons';
 import CmdSidebar from './CmdSidebar';
+import type { WhoamiInfo } from '../api/client';
 
 const NAV_ITEMS: Array<{ to: string; icon: typeof IconApps; label: string; matchPrefix?: string }> = [
   { to: '/', icon: IconApps, label: 'Apps', matchPrefix: '/apps' },
@@ -11,8 +13,23 @@ const NAV_ITEMS: Array<{ to: string; icon: typeof IconApps; label: string; match
 ];
 
 export default function Layout() {
-  const { logout } = useAuth();
+  const { client, logout } = useAuth();
   const navigate = useNavigate();
+  const [me, setMe] = useState<WhoamiInfo | null>(null);
+  const [serverName, setServerName] = useState<string>('');
+
+  useEffect(() => {
+    if (!client) return;
+    let alive = true;
+    client.getWhoami().then((w) => alive && setMe(w)).catch(() => {});
+    client.getHealth().then((h) => alive && setServerName(h.server_name || '')).catch(() => {});
+    return () => { alive = false; };
+  }, [client]);
+
+  // Reflect which vault this tab is for — helps when several are open.
+  useEffect(() => {
+    document.title = serverName ? `${serverName} · dotMage Admin` : 'dotMage Admin';
+  }, [serverName]);
 
   const handleLogout = () => {
     logout();
@@ -25,6 +42,7 @@ export default function Layout() {
         <NavLink to="/" className="brand">
           <span className="mark"><Mark /></span>
           <span className="bn">dot<b>Mage</b></span>
+          {serverName && <span className="team-tag">{serverName}</span>}
         </NavLink>
         <div className="nav">
           {NAV_ITEMS.map(({ to, icon: Ic, label, matchPrefix }) => (
@@ -45,8 +63,8 @@ export default function Layout() {
           <div className="who">
             <span className="sq"><IconCpu size={15} /></span>
             <span>
-              <div className="nm">admin</div>
-              <div className="lbl">this device</div>
+              <div className="nm">{me?.name ?? '…'}</div>
+              <div className="lbl">{me ? `${me.role} · ${me.device_name}` : 'this device'}</div>
             </span>
           </div>
           <button className="who lo" title="Logout" onClick={handleLogout}>
@@ -57,7 +75,7 @@ export default function Layout() {
       <div className="strip">
         <span className="seg">
           <span className="k">server</span>
-          <span className="v">{window.location.host || 'localhost'}</span>
+          <span className="v">{serverName ? `${serverName} · ${window.location.host}` : (window.location.host || 'localhost')}</span>
         </span>
         <span className="seg">
           <span className="k">auth</span>
