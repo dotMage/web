@@ -1,8 +1,10 @@
 name: Docker
 
+# Images publish only from an annotated release tag — main collects features
+# between releases (see dotmage-spec RELEASING.md).
 on:
   push:
-    branches: [main]
+    tags: ['v*']
 
 permissions:
   contents: read
@@ -40,4 +42,5 @@ jobs:
           push: true
           tags: |
             ghcr.io/dotmage/web:latest
+            ghcr.io/dotmage/web:${{ github.ref_name }}
             ghcr.io/dotmage/web:${{ github.sha }}

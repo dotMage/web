@@ -14,6 +14,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Docker images are multi-arch: `linux/amd64` + `linux/arm64` (Raspberry Pi, ARM VPS).
 
 ### Changed
+- Docker images (`:latest` + `:vX.Y.Z`) publish only from an annotated release tag —
+  pushing to main no longer moves `:latest`.
 
 ### Fixed
 
