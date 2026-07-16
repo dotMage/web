@@ -11,6 +11,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Header shows who you are (name + role + device) instead of a hardcoded "admin".
 - Browser tab and header show the server's advertised name (`DOTMAGE_SERVER_NAME`) so
   multiple team panels are distinguishable at a glance.
+- Docker images are multi-arch: `linux/amd64` + `linux/arm64` (Raspberry Pi, ARM VPS).
 
 ### Changed
 
