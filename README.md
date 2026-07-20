@@ -4,6 +4,8 @@ dotMage Web Admin — read-only admin panel for the E2E-encrypted .env secret ma
 
 **Important:** This admin panel does NOT display secret values — the server never has access to plaintext secrets (E2E encryption).
 
+Docs: [dotmage.github.io/docs](https://dotmage.github.io/docs/) · Chat: [Telegram](https://t.me/dotMage)
+
 ## Contributing
 
 Every user-visible change updates `CHANGELOG.md` under `[Unreleased]` in the same PR —
