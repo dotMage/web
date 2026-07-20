@@ -87,14 +87,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!enroll) return;
     didBootstrap.current = true;
     window.history.replaceState(null, '', window.location.pathname + window.location.search);
-    login(enroll)
-      .catch(() => {
+    void (async () => {
+      try {
+        await login(enroll);
+      } catch {
         sessionStorage.setItem(
           NOTICE_KEY,
           'That login link expired or was already used. Run `dmage open` again.',
         );
-      })
-      .finally(() => setSigningIn(false));
+      } finally {
+        setSigningIn(false);
+      }
+    })();
   }, [login]);
 
   return (

@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, useMemo, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mark, IconBan, IconTerminal } from '../components/Icons';
@@ -6,15 +6,11 @@ import { Mark, IconBan, IconTerminal } from '../components/Icons';
 export default function Login() {
   const [value, setValue] = useState('');
   const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle');
-  // One-shot notice left by a failed `dmage open` auto-login.
-  const [notice, setNotice] = useState<string | null>(null);
+  // One-shot notice left by a failed `dmage open` auto-login: read it once, then clear it.
+  const notice = useMemo(() => sessionStorage.getItem('dotmage_login_notice'), []);
   useEffect(() => {
-    const n = sessionStorage.getItem('dotmage_login_notice');
-    if (n) {
-      setNotice(n);
-      sessionStorage.removeItem('dotmage_login_notice');
-    }
-  }, []);
+    if (notice) sessionStorage.removeItem('dotmage_login_notice');
+  }, [notice]);
   const { login } = useAuth();
   const navigate = useNavigate();
 

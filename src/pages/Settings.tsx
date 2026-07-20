@@ -34,7 +34,6 @@ export default function Settings() {
   useEffect(() => {
     if (!health?.version) return;
     let alive = true;
-    setChecking(true);
     checkForUpdate(health.version)
       .then((u) => alive && setUpdate(u))
       .finally(() => alive && setChecking(false));
@@ -45,6 +44,7 @@ export default function Settings() {
     const next: Channel = channel === 'dev' ? 'stable' : 'dev';
     setChannel(next);
     setChan(next);
+    setChecking(true);
   }
 
   const mode = health?.features.includes('team') ? 'team' : 'solo';
