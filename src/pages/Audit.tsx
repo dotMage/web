@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../i18n';
 import { formatDate } from '../utils';
 import { CmdChip } from '../components/CmdChip';
 import {
@@ -40,6 +41,7 @@ const AUDIT_ICON: Record<string, typeof IconUpload> = {
 
 export default function Audit() {
   const { client } = useAuth();
+  const { t } = useI18n();
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [apps, setApps] = useState<AppInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,11 +72,11 @@ export default function Audit() {
   return (
     <div>
       <div className="ph">
-        <h1>Audit log</h1>
+        <h1>{t('Audit log')}</h1>
         <span className="ct">{events.length}</span>
         <div className="selwrap" style={{ marginLeft: 'auto', marginRight: 12 }}>
           <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="all">ALL APPS</option>
+            <option value="all">{t('ALL APPS')}</option>
             {apps.map((a) => (
               <option key={a.id} value={a.name}>
                 {a.name}
@@ -88,14 +90,13 @@ export default function Audit() {
         />
       </div>
       {loading ? (
-        <div className="loading-wrap"><span className="spin" /> Loading...</div>
+        <div className="loading-wrap"><span className="spin" /> {t('Loading...')}</div>
       ) : events.length === 0 ? (
         <div className="empty">
           <div className="eic"><IconAuditIcon size={26} /></div>
-          <h3>No events yet</h3>
+          <h3>{t('No events yet')}</h3>
           <p>
-            Every auth, push, pull, rollback and device change is recorded here
-            as soon as it happens.
+            {t('Every auth, push, pull, rollback and device change is recorded here as soon as it happens.')}
           </p>
         </div>
       ) : (
@@ -103,13 +104,13 @@ export default function Audit() {
           <table>
             <thead>
               <tr>
-                <th>Time</th>
-                <th>Action</th>
-                <th>User</th>
-                <th>App</th>
-                <th>Env</th>
-                <th>Rev</th>
-                <th>Device</th>
+                <th>{t('Time')}</th>
+                <th>{t('Action')}</th>
+                <th>{t('User')}</th>
+                <th>{t('App')}</th>
+                <th>{t('Env')}</th>
+                <th>{t('Rev')}</th>
+                <th>{t('Device')}</th>
               </tr>
             </thead>
             <tbody>

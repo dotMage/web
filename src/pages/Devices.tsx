@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../i18n';
 import { formatDate } from '../utils';
 import { CmdChip, CmdLine } from '../components/CmdChip';
 import { IconBan, IconClock, IconPlus, IconDownload } from '../components/Icons';
@@ -22,6 +23,7 @@ function daysUntil(dateStr: string): number {
 
 export default function Devices() {
   const { client } = useAuth();
+  const { t } = useI18n();
   const { toast } = useToast();
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +44,7 @@ export default function Devices() {
         cmd: `dmage auth --server ${origin} --enroll ${token}`,
       });
     } catch (e) {
-      toast('Could not create token', String(e), 'danger');
+      toast(t('Could not create token'), String(e), 'danger');
     } finally {
       setBusy(false);
     }
@@ -61,7 +63,7 @@ export default function Devices() {
         link,
       });
     } catch (e) {
-      toast('Could not create token', String(e), 'danger');
+      toast(t('Could not create token'), String(e), 'danger');
     } finally {
       setBusy(false);
     }
@@ -84,14 +86,14 @@ export default function Devices() {
         setDevices((prev) =>
           prev.map((d) => (d.id === revoking.id ? { ...d, revoked: true } : d)),
         );
-        toast('Device revoked', revoking.name + ' can no longer sync', 'danger');
+        toast(t('Device revoked'), `${revoking.name} ${t('can no longer sync')}`, 'danger');
         setRevoking(null);
       })
       .catch((e) => setError(String(e)));
   }
 
   if (loading) {
-    return <div className="loading-wrap"><span className="spin" /> Loading...</div>;
+    return <div className="loading-wrap"><span className="spin" /> {t('Loading...')}</div>;
   }
   if (error) {
     return <div className="err-banner">{error}</div>;
@@ -102,14 +104,14 @@ export default function Devices() {
   return (
     <div>
       <div className="ph">
-        <h1>Devices</h1>
-        <span className="ct">{activeCount} active</span>
+        <h1>{t('Devices')}</h1>
+        <span className="ct">{activeCount} {t('active')}</span>
         <span style={{ marginLeft: 'auto', display: 'inline-flex', gap: 8 }}>
           <button className="btn ink" onClick={addDevice} disabled={busy}>
-            <IconPlus size={13} /> Add a device
+            <IconPlus size={13} /> {t('Add a device')}
           </button>
           <button className="btn ghost" onClick={webLogin} disabled={busy}>
-            <IconDownload size={13} /> Web login link
+            <IconDownload size={13} /> {t('Web login link')}
           </button>
         </span>
       </div>
@@ -117,9 +119,7 @@ export default function Devices() {
         <span className="ic"><IconClock size={20} /></span>
         <div className="tx">
           <p className="sub" style={{ marginTop: 0 }}>
-            Adding a machine mints a one-time token; you finish with your master password
-            on that machine — the browser never holds your key. A scoped CI token needs the
-            key too, so mint it from the CLI:
+            {t('Adding a machine mints a one-time token; you finish with your master password on that machine — the browser never holds your key. A scoped CI token needs the key too, so mint it from the CLI:')}
           </p>
           <CmdChip cmd="dmage gen-ci-token --app <app> --env <env>" />
         </div>
@@ -127,18 +127,18 @@ export default function Devices() {
       {devices.length === 0 ? (
         <div className="empty">
           <div className="eic"><IconBan size={26} /></div>
-          <h3>No devices found</h3>
-          <p>Pair a device by running dmage login on any machine.</p>
+          <h3>{t('No devices found')}</h3>
+          <p>{t('Pair a device by running dmage login on any machine.')}</p>
         </div>
       ) : (
         <div className="tbl">
           <table>
             <thead>
               <tr>
-                <th>Device</th>
-                <th>Last seen</th>
-                <th>Token expires</th>
-                <th>Status</th>
+                <th>{t('Device')}</th>
+                <th>{t('Last seen')}</th>
+                <th>{t('Token expires')}</th>
+                <th>{t('Status')}</th>
                 <th />
               </tr>
             </thead>
@@ -168,7 +168,7 @@ export default function Devices() {
                     </td>
                     <td>
                       <span className={'stat ' + status}>
-                        <i />{status}
+                        <i />{t(status)}
                       </span>
                     </td>
                     <td style={{ textAlign: 'right' }}>
@@ -177,7 +177,7 @@ export default function Devices() {
                           className="btn danger"
                           onClick={() => setRevoking(d)}
                         >
-                          <IconBan size={13} /> Revoke
+                          <IconBan size={13} /> {t('Revoke')}
                         </button>
                       )}
                     </td>
@@ -192,17 +192,17 @@ export default function Devices() {
       {tok && (
         <div className="scrim" onClick={() => setTok(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="mh"><IconPlus size={17} /> {tok.title}</div>
+            <div className="mh"><IconPlus size={17} /> {t(tok.title)}</div>
             <div className="mb">
-              <p>{tok.note}</p>
+              <p>{t(tok.note)}</p>
               <CmdLine cmd={tok.cmd} />
               {tok.link && (
                 <p className="sub">
-                  or <a href={tok.link} target="_blank" rel="noreferrer">open the link</a> in a new tab
+                  {t('or')} <a href={tok.link} target="_blank" rel="noreferrer">{t('open the link')}</a> {t('in a new tab')}
                 </p>
               )}
               <div className="row">
-                <button className="btn ghost" onClick={() => setTok(null)}>Done</button>
+                <button className="btn ghost" onClick={() => setTok(null)}>{t('Done')}</button>
               </div>
             </div>
           </div>
@@ -212,19 +212,17 @@ export default function Devices() {
       {revoking && (
         <div className="scrim" onClick={() => setRevoking(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="mh"><IconBan size={17} /> Revoke device</div>
+            <div className="mh"><IconBan size={17} /> {t('Revoke device')}</div>
             <div className="mb">
               <p>
-                <b>{revoking.name}</b> loses access immediately. Its token is
-                invalidated server-side; future push / pull is rejected until it
-                re-authenticates with a new token.
+                <b>{revoking.name}</b> {t('loses access immediately. Its token is invalidated server-side; future push / pull is rejected until it re-authenticates with a new token.')}
               </p>
               <div className="row">
                 <button className="btn ghost" onClick={() => setRevoking(null)}>
-                  Cancel
+                  {t('Cancel')}
                 </button>
                 <button className="btn danger" onClick={confirmRevoke}>
-                  <IconBan size={13} /> Revoke
+                  <IconBan size={13} /> {t('Revoke')}
                 </button>
               </div>
             </div>

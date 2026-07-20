@@ -1,6 +1,7 @@
 import { useEffect, useState, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../i18n';
 import { formatDate } from '../utils';
 import { CmdChip } from '../components/CmdChip';
 import { IconSearch, IconApps as IconAppsIcon, IconChevR } from '../components/Icons';
@@ -32,6 +33,7 @@ function shortName(fullName: string, folder: string | null): string {
 
 export default function Apps() {
   const { client } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [apps, setApps] = useState<AppInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +50,7 @@ export default function Apps() {
   }, [client]);
 
   if (loading) {
-    return <div className="loading-wrap"><span className="spin" /> Loading...</div>;
+    return <div className="loading-wrap"><span className="spin" /> {t('Loading...')}</div>;
   }
   if (error) {
     return <div className="err-banner">{error}</div>;
@@ -61,7 +63,7 @@ export default function Apps() {
   return (
     <div>
       <div className="ph">
-        <h1>Applications</h1>
+        <h1>{t('Applications')}</h1>
         <span className="ct">{apps.length}</span>
         {apps.length > 0 && (
           <div className="search" style={{ marginLeft: 24 }}>
@@ -69,7 +71,7 @@ export default function Apps() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="filter apps..."
+              placeholder={t('filter apps...')}
             />
           </div>
         )}
@@ -78,27 +80,26 @@ export default function Apps() {
       {apps.length === 0 ? (
         <div className="empty">
           <div className="eic"><IconAppsIcon size={26} /></div>
-          <h3>No apps yet</h3>
+          <h3>{t('No apps yet')}</h3>
           <p>
-            Apps appear here the moment you push your first .env from any paired
-            device. Start one from your project folder.
+            {t('Apps appear here the moment you push your first .env from any paired device. Start one from your project folder.')}
           </p>
         </div>
       ) : rows.length === 0 ? (
         <div className="empty">
           <div className="eic"><IconSearch size={26} /></div>
-          <h3>No matches</h3>
-          <p>Nothing matches &quot;{query}&quot;. Clear the filter to see all {apps.length} apps.</p>
+          <h3>{t('No matches')}</h3>
+          <p>{t('Nothing matches')} &quot;{query}&quot;. {t('Clear the filter to see all apps')} ({apps.length}).</p>
         </div>
       ) : (
         <div className="tbl">
           <table>
             <thead>
               <tr>
-                <th>App</th>
-                <th>Environments</th>
-                <th>Latest</th>
-                <th>Updated</th>
+                <th>{t('App')}</th>
+                <th>{t('Environments')}</th>
+                <th>{t('Latest')}</th>
+                <th>{t('Updated')}</th>
                 <th />
               </tr>
             </thead>

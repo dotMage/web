@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../i18n';
 import { formatDate } from '../utils';
 import { CmdChip, CmdLine } from '../components/CmdChip';
 import { IconArrowL, IconClock, IconRollback, IconLock } from '../components/Icons';
@@ -9,6 +10,7 @@ import type { EnvInfo, RevisionMeta } from '../api/client';
 export default function AppDetail() {
   const { name } = useParams<{ name: string }>();
   const { client } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [envs, setEnvs] = useState<EnvInfo[]>([]);
   const [selectedEnv, setSelectedEnv] = useState<string | null>(null);
@@ -61,7 +63,7 @@ export default function AppDetail() {
   }
 
   if (loading) {
-    return <div className="loading-wrap"><span className="spin" /> Loading...</div>;
+    return <div className="loading-wrap"><span className="spin" /> {t('Loading...')}</div>;
   }
   if (error) {
     return <div className="err-banner">{error}</div>;
@@ -75,7 +77,7 @@ export default function AppDetail() {
           onClick={() => navigate('/')}
           style={{ padding: '6px 9px' }}
         >
-          <IconArrowL size={15} /> Apps
+          <IconArrowL size={15} /> {t('Apps')}
         </button>
         <h1>
           {name && name.includes('/') && (
@@ -89,7 +91,7 @@ export default function AppDetail() {
       </div>
       <div className="dgrid">
         <div className="envcol">
-          <div className="envcol-lbl">Environments</div>
+          <div className="envcol-lbl">{t('Environments')}</div>
           {envs.map((env) => (
             <button
               key={env.id}
@@ -97,20 +99,19 @@ export default function AppDetail() {
               onClick={() => selectEnv(env.name)}
             >
               <span>{env.name}</span>
-              <span className="rv">{env.latest_rev} REV</span>
+              <span className="rv">{env.latest_rev} {t('REV')}</span>
             </button>
           ))}
         </div>
         <div>
           {revLoading ? (
-            <div className="loading-wrap"><span className="spin" /> Loading revisions...</div>
+            <div className="loading-wrap"><span className="spin" /> {t('Loading revisions...')}</div>
           ) : selectedEnv && revisions.length === 0 ? (
             <div className="empty">
               <div className="eic"><IconClock size={26} /></div>
-              <h3>No revisions in {selectedEnv}</h3>
+              <h3>{t('No revisions in')} {selectedEnv}</h3>
               <p>
-                This environment has no pushes yet. From a checkout with the
-                right .env, run:
+                {t('This environment has no pushes yet. From a checkout with the right .env, run:')}
               </p>
               <CmdLine cmd={`dmage push ${name} --env ${selectedEnv}`} />
             </div>
@@ -119,11 +120,11 @@ export default function AppDetail() {
               <table>
                 <thead>
                   <tr>
-                    <th>Rev</th>
-                    <th>Created</th>
-                    <th>Device</th>
-                    <th>Hash</th>
-                    <th>Note</th>
+                    <th>{t('Rev')}</th>
+                    <th>{t('Created')}</th>
+                    <th>{t('Device')}</th>
+                    <th>{t('Hash')}</th>
+                    <th>{t('Note')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -140,7 +141,7 @@ export default function AppDetail() {
                       <td>
                         {r.rollback_of ? (
                           <span className="rollback">
-                            <IconRollback size={12} /> rollback of #{r.rollback_of}
+                            <IconRollback size={12} /> {t('rollback of')} #{r.rollback_of}
                           </span>
                         ) : (
                           <span className="faint">--</span>
@@ -155,11 +156,10 @@ export default function AppDetail() {
           <div className="secnote">
             <div className="ic"><IconLock size={22} /></div>
             <div className="tx">
-              <div className="t">Secret values never appear here</div>
+              <div className="t">{t('Secret values never appear here')}</div>
               <div className="d">
-                Revisions are encrypted on your devices before upload. The server
-                stores only ciphertext + metadata and{' '}
-                <b>cannot decrypt them</b>. To read values, decrypt locally:{' '}
+                {t('Revisions are encrypted on your devices before upload. The server stores only ciphertext + metadata and')}{' '}
+                <b>{t('cannot decrypt them')}</b>. {t('To read values, decrypt locally:')}{' '}
                 {selectedEnv && (
                   <CmdLine cmd={`dmage pull ${name} --env ${selectedEnv}`} />
                 )}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { IconDownload } from './Icons';
 import { CmdLine } from './CmdChip';
+import { useI18n } from '../i18n';
 import { checkForUpdate, type UpdateInfo } from '../lib/updateCheck';
 
 // Canonical upgrade path: re-run the (idempotent) installer. It rewrites the
@@ -11,6 +12,7 @@ const INSTALL_CMD =
 const DISMISS_KEY = 'dotmage:update_dismissed';
 
 export default function UpdateBanner({ current }: { current: string }) {
+  const { t } = useI18n();
   const [info, setInfo] = useState<UpdateInfo | null>(null);
 
   useEffect(() => {
@@ -54,21 +56,20 @@ export default function UpdateBanner({ current }: { current: string }) {
         <div className="hd">
           {info.major ? (
             <>
-              Major update <b>v{info.latest}</b> available — review the migration notes
-              before upgrading (the pinned major won&rsquo;t update on its own).
+              {t('Major update')} <b>v{info.latest}</b> {t('available — review the migration notes before upgrading (the pinned major won’t update on its own).')}
             </>
           ) : (
             <>
-              dotMage <b>v{info.latest}</b> is available (you run v{current}).
+              dotMage <b>v{info.latest}</b> {t('is available (you run')} v{current}).
             </>
           )}{' '}
           <a href={info.htmlUrl} target="_blank" rel="noreferrer">
-            release notes
+            {t('release notes')}
           </a>
         </div>
         <CmdLine cmd={INSTALL_CMD} />
       </div>
-      <button className="x" title="Dismiss" onClick={dismiss} aria-label="Dismiss">
+      <button className="x" title={t('Dismiss')} onClick={dismiss} aria-label={t('Dismiss')}>
         ✕
       </button>
     </div>

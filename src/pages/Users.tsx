@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../i18n';
 import { formatDate } from '../utils';
 import { CmdChip } from '../components/CmdChip';
 import { IconUsers, IconClock, IconBan } from '../components/Icons';
@@ -10,6 +11,7 @@ const ROLES = ['owner', 'editor', 'viewer'];
 
 export default function Users() {
   const { client } = useAuth();
+  const { t } = useI18n();
   const { toast } = useToast();
   const [data, setData] = useState<UsersResponse | null>(null);
   const [me, setMe] = useState<WhoamiInfo | null>(null);
@@ -43,9 +45,9 @@ export default function Users() {
         ...prev,
         users: prev.users.map((x) => (x.id === u.id ? { ...x, role } : x)),
       });
-      toast('Role updated', `${u.name} is now ${role}`);
+      toast(t('Role updated'), `${u.name} ${t('is now')} ${role}`);
     } catch (e) {
-      toast('Could not change role', String(e), 'danger');
+      toast(t('Could not change role'), String(e), 'danger');
     }
   }
 
@@ -58,10 +60,10 @@ export default function Users() {
         ...prev,
         users: prev.users.map((x) => (x.id === removing.id ? { ...x, status: 'removed' } : x)),
       });
-      toast('User removed', `${removing.name} lost access; their devices are revoked`, 'danger');
+      toast(t('User removed'), `${removing.name} ${t('lost access; their devices are revoked')}`, 'danger');
       setRemoving(null);
     } catch (e) {
-      toast('Could not remove user', String(e), 'danger');
+      toast(t('Could not remove user'), String(e), 'danger');
     } finally {
       setBusy(false);
     }
@@ -70,7 +72,7 @@ export default function Users() {
   const isOwner = me?.role === 'owner';
 
   if (loading) {
-    return <div className="loading-wrap"><span className="spin" /> Loading...</div>;
+    return <div className="loading-wrap"><span className="spin" /> {t('Loading...')}</div>;
   }
   if (error) {
     return <div className="err-banner">{error}</div>;
@@ -80,15 +82,13 @@ export default function Users() {
     return (
       <div>
         <div className="ph">
-          <h1>Users</h1>
+          <h1>{t('Users')}</h1>
         </div>
         <div className="empty">
           <div className="eic"><IconUsers size={26} /></div>
-          <h3>Team mode is off on this server</h3>
+          <h3>{t('Team mode is off on this server')}</h3>
           <p>
-            This server runs with DOTMAGE_MODE=solo, so there is a single
-            implicit owner and no user list. Enable team mode on the server to
-            invite teammates.
+            {t('This server runs with DOTMAGE_MODE=solo, so there is a single implicit owner and no user list. Enable team mode on the server to invite teammates.')}
           </p>
         </div>
       </div>
@@ -104,27 +104,27 @@ export default function Users() {
   return (
     <div>
       <div className="ph">
-        <h1>Users</h1>
-        <span className="ct">{activeCount} active</span>
+        <h1>{t('Users')}</h1>
+        <span className="ct">{activeCount} {t('active')}</span>
         <CmdChip cmd="dmage user list" />
         {isOwner && <CmdChip cmd="dmage user invite <name> --role editor" />}
       </div>
       {users.length === 0 ? (
         <div className="empty">
           <div className="eic"><IconUsers size={26} /></div>
-          <h3>No users yet</h3>
-          <p>Invite a teammate with dmage user invite from an owner device.</p>
+          <h3>{t('No users yet')}</h3>
+          <p>{t('Invite a teammate with dmage user invite from an owner device.')}</p>
         </div>
       ) : (
         <div className="tbl">
           <table>
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Key gen</th>
-                <th>Joined</th>
+                <th>{t('Name')}</th>
+                <th>{t('Role')}</th>
+                <th>{t('Status')}</th>
+                <th>{t('Key gen')}</th>
+                <th>{t('Joined')}</th>
                 <th />
               </tr>
             </thead>
@@ -150,7 +150,7 @@ export default function Users() {
                     </td>
                     <td>
                       <span className={'stat ' + (removed ? 'revoked' : 'active')}>
-                        <i />{u.status}
+                        <i />{t(u.status)}
                       </span>
                     </td>
                     <td className="muted">#{u.key_gen}</td>
@@ -158,7 +158,7 @@ export default function Users() {
                     <td style={{ textAlign: 'right' }}>
                       {manage && (
                         <button className="btn danger" onClick={() => setRemoving(u)}>
-                          <IconBan size={13} /> Remove
+                          <IconBan size={13} /> {t('Remove')}
                         </button>
                       )}
                     </td>
@@ -173,17 +173,17 @@ export default function Users() {
       {invitations.length > 0 && (
         <>
           <div className="ph" style={{ marginTop: 28 }}>
-            <h1>Pending invitations</h1>
+            <h1>{t('Pending invitations')}</h1>
             <span className="ct">{invitations.length}</span>
           </div>
           <div className="tbl">
             <table>
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Expires</th>
+                  <th>{t('Name')}</th>
+                  <th>{t('Role')}</th>
+                  <th>{t('Status')}</th>
+                  <th>{t('Expires')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -194,7 +194,7 @@ export default function Users() {
                       <span className="chip">{inv.role}</span>
                     </td>
                     <td>
-                      <span className="chip auth">{inv.status}</span>
+                      <span className="chip auth">{t(inv.status)}</span>
                     </td>
                     <td className="muted">
                       <IconClock size={12} /> {formatDate(inv.expires_at)}
@@ -210,17 +210,15 @@ export default function Users() {
       {removing && (
         <div className="scrim" onClick={() => setRemoving(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="mh"><IconBan size={17} /> Remove user</div>
+            <div className="mh"><IconBan size={17} /> {t('Remove user')}</div>
             <div className="mb">
               <p>
-                <b>{removing.name}</b> loses access immediately: their key wraps are
-                dropped and all their devices are revoked. Secrets they already pulled
-                to disk are not recalled — rotate the account key if that matters.
+                <b>{removing.name}</b> {t('loses access immediately: their key wraps are dropped and all their devices are revoked. Secrets they already pulled to disk are not recalled — rotate the account key if that matters.')}
               </p>
               <div className="row">
-                <button className="btn ghost" onClick={() => setRemoving(null)}>Cancel</button>
+                <button className="btn ghost" onClick={() => setRemoving(null)}>{t('Cancel')}</button>
                 <button className="btn danger" onClick={confirmRemove} disabled={busy}>
-                  <IconBan size={13} /> Remove
+                  <IconBan size={13} /> {t('Remove')}
                 </button>
               </div>
             </div>
