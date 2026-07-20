@@ -1,8 +1,14 @@
-import { createContext, useContext, useState, useCallback, useMemo, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, useEffect, useRef, type ReactNode } from 'react';
 import { DotMageClient } from '../api/client';
 
 const DEVICE_KEY = 'dotmage_device_token';
 const REFRESH_KEY = 'dotmage_refresh_token';
+// One-shot notice shown on the login page after a failed auto-login (read by Login.tsx).
+const NOTICE_KEY = 'dotmage_login_notice';
+
+function hashToken(): string | null {
+  return new URLSearchParams(window.location.hash.replace(/^#/, '')).get('token');
+}
 
 interface AuthState {
   token: string | null;
@@ -69,9 +75,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(data.device_token);
   }, []);
 
+  // Auto-login from `#token=…` (dmage open). The token rides in the fragment,
+  // not the query, so it never reaches the server; we strip it from the URL
+  // immediately regardless of outcome. Ref-guarded to survive StrictMode's
+  // double-invoke (the enrollment token is single-use).
+  const [signingIn, setSigningIn] = useState(() => hashToken() !== null);
+  const didBootstrap = useRef(false);
+  useEffect(() => {
+    if (didBootstrap.current) return;
+    const enroll = hashToken();
+    if (!enroll) return;
+    didBootstrap.current = true;
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    login(enroll)
+      .catch(() => {
+        sessionStorage.setItem(
+          NOTICE_KEY,
+          'That login link expired or was already used. Run `dmage open` again.',
+        );
+      })
+      .finally(() => setSigningIn(false));
+  }, [login]);
+
   return (
     <AuthContext.Provider value={{ token, client, login, logout }}>
-      {children}
+      {signingIn ? (
+        <div className="login">
+          <div className="lbox">
+            <div className="bd" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span className="spin" /> Signing you in…
+            </div>
+          </div>
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }

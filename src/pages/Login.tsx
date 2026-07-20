@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mark, IconBan, IconTerminal } from '../components/Icons';
@@ -6,6 +6,15 @@ import { Mark, IconBan, IconTerminal } from '../components/Icons';
 export default function Login() {
   const [value, setValue] = useState('');
   const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle');
+  // One-shot notice left by a failed `dmage open` auto-login.
+  const [notice, setNotice] = useState<string | null>(null);
+  useEffect(() => {
+    const n = sessionStorage.getItem('dotmage_login_notice');
+    if (n) {
+      setNotice(n);
+      sessionStorage.removeItem('dotmage_login_notice');
+    }
+  }, []);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -34,13 +43,18 @@ export default function Login() {
         <div className="hd">
           <span className="mark"><Mark size={28} /></span>
           <span className="bn">dot<b>Mage</b></span>
-          <span className="v">v0.1.0</span>
+          <span className="v">v{__APP_VERSION__}</span>
         </div>
         <div className="bd">
           <h2>Pair this device</h2>
           <div className="sub">
             dotMage has no password. You authorize this browser with a one-time login code from the CLI.
           </div>
+          {notice && (
+            <div className="lerr">
+              <IconBan size={15} /> {notice}
+            </div>
+          )}
           <label className="lbl-in">// login code</label>
           <div className={'tokfield' + (state === 'error' ? ' bad' : '')}>
             <span className="pre">dmage_etok_</span>

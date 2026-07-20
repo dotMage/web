@@ -6,8 +6,17 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- Auto-login for `dmage open`: the admin panel reads a one-time login token from the URL
+  fragment (`#token=…`), signs you in, and strips it from the address bar immediately. A
+  failed/expired link shows a friendly notice on the login page.
+- Update banner: the admin panel checks the latest server release on GitHub and shows a
+  dismissible banner with a copy-paste upgrade command when a newer version is out. The
+  check runs in your browser (the server never phones home) and is cached for 24h. A new
+  major shows a distinct "migration needed" variant, since the pinned major won't
+  auto-update.
 
 ### Changed
+- The login screen now shows the real app version instead of a hardcoded one.
 
 ### Fixed
 

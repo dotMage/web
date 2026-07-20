@@ -54,3 +54,23 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.tags.outputs.tags }}
+
+  # Cut a GitHub Release per tag, in lockstep with the server repo. Dev tags
+  # are flagged prerelease. See server/.github/workflows/docker.yml.
+  release:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          PRE=""
+          [[ "$V" == *-* ]] && PRE="--prerelease"
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes $PRE

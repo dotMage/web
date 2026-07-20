@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mark, IconApps, IconDevices, IconUsers, IconAudit, IconLogout, IconCpu } from './Icons';
 import CmdSidebar from './CmdSidebar';
+import UpdateBanner from './UpdateBanner';
 import type { WhoamiInfo } from '../api/client';
 
 const NAV_ITEMS: Array<{ to: string; icon: typeof IconApps; label: string; matchPrefix?: string }> = [
@@ -17,12 +18,20 @@ export default function Layout() {
   const navigate = useNavigate();
   const [me, setMe] = useState<WhoamiInfo | null>(null);
   const [serverName, setServerName] = useState<string>('');
+  const [version, setVersion] = useState<string>('');
 
   useEffect(() => {
     if (!client) return;
     let alive = true;
     client.getWhoami().then((w) => alive && setMe(w)).catch(() => {});
-    client.getHealth().then((h) => alive && setServerName(h.server_name || '')).catch(() => {});
+    client
+      .getHealth()
+      .then((h) => {
+        if (!alive) return;
+        setServerName(h.server_name || '');
+        setVersion(h.version || '');
+      })
+      .catch(() => {});
     return () => { alive = false; };
   }, [client]);
 
@@ -72,6 +81,7 @@ export default function Layout() {
           </button>
         </div>
       </div>
+      <UpdateBanner current={version} />
       <div className="strip">
         <span className="seg">
           <span className="k">server</span>

@@ -768,6 +768,46 @@ select {
   font-family: var(--mono);
 }
 
+/* ===== update banner (server self-update) ===== */
+.update-banner {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  border-bottom: 2px solid var(--line);
+  background: var(--lime);
+  color: var(--ink);
+}
+.update-banner.major { background: var(--amber); }
+.update-banner .ic {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  background: var(--ink);
+  color: var(--lime);
+  border: 2px solid var(--line);
+}
+.update-banner.major .ic { color: var(--amber); }
+.update-banner .msg { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px }
+.update-banner .hd { font-size: 12px; font-weight: 700 }
+.update-banner .hd a { color: var(--ink); text-underline-offset: 2px }
+.update-banner .msg .cmdline { margin-top: 0; align-self: flex-start; max-width: 100% }
+.update-banner .x {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--line);
+  background: var(--paper2);
+  color: var(--ink);
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+.update-banner .x:hover { background: #fff }
+
 /* ===== security note in detail ===== */
 .secnote .d .cmdline { margin-top: 0; padding: 2px 7px; font-size: 11px; vertical-align: middle }
 
