@@ -1,9 +1,11 @@
 import { useState, useMemo, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../i18n';
 import { Mark, IconBan, IconTerminal } from '../components/Icons';
 
 export default function Login() {
+  const { t } = useI18n();
   const [value, setValue] = useState('');
   const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle');
   // One-shot notice left by a failed `dmage open` auto-login: read it once, then clear it.
@@ -42,16 +44,16 @@ export default function Login() {
           <span className="v">v{__APP_VERSION__}</span>
         </div>
         <div className="bd">
-          <h2>Pair this device</h2>
+          <h2>{t('Pair this device')}</h2>
           <div className="sub">
-            dotMage has no password. You authorize this browser with a one-time login code from the CLI.
+            {t('dotMage has no password. You authorize this browser with a one-time login code from the CLI.')}
           </div>
           {notice && (
             <div className="lerr">
-              <IconBan size={15} /> {notice}
+              <IconBan size={15} /> {t(notice)}
             </div>
           )}
-          <label className="lbl-in">// login code</label>
+          <label className="lbl-in">{t('// login code')}</label>
           <div className={'tokfield' + (state === 'error' ? ' bad' : '')}>
             <span className="pre">dmage_etok_</span>
             <input
@@ -60,21 +62,20 @@ export default function Login() {
                 setValue(e.target.value);
                 if (state === 'error') setState('idle');
               }}
-              placeholder="paste the rest..."
+              placeholder={t('paste the rest...')}
               spellCheck={false}
               onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
             />
           </div>
           {state === 'error' && (
             <div className="lerr">
-              <IconBan size={15} /> Login code expired or invalid. Run <code>dmage token</code> again.
+              <IconBan size={15} /> {t('Login code expired or invalid. Run')} <code>dmage token</code> {t('again.')}
             </div>
           )}
           <div className="lhint">
             <IconTerminal size={16} style={{ flex: '0 0 auto' }} />
             <span>
-              Run <code>dmage token</code> on any authenticated device. Copy the code it prints, paste it above.
-              Server never sees your secrets -- only ciphertext.
+              {t('Run')} <code>dmage token</code> {t('on any authenticated device. Copy the code it prints, paste it above. Server never sees your secrets -- only ciphertext.')}
             </span>
           </div>
           <button
@@ -84,10 +85,10 @@ export default function Login() {
           >
             {state === 'loading' ? (
               <>
-                <span className="spin" /> Verifying...
+                <span className="spin" /> {t('Verifying...')}
               </>
             ) : (
-              <>Verify device</>
+              <>{t('Verify device')}</>
             )}
           </button>
         </div>

@@ -378,6 +378,13 @@ tr.revoked .nm-strong { text-decoration: line-through }
 .btn.ink:hover { background: var(--lime); color: var(--ink) }
 .btn.ghost { border-color: transparent; background: transparent }
 .btn.ghost:hover { border-color: var(--line); background: transparent; color: var(--ink) }
+.btn.sm { padding: 5px 10px; font-size: 10.5px }
+
+/* segmented choice (language / scale in Settings) */
+.seg-choice { display: inline-flex; gap: 4px; flex-wrap: wrap }
+.seg-choice .btn { border-color: var(--line) }
+.seg-choice .btn.on { background: var(--ink); color: var(--paper); border-color: var(--ink) }
+.seg-choice .btn.on:hover { background: var(--ink); color: var(--paper) }
 
 /* ===== select ===== */
 select {

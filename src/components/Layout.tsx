@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../i18n';
 import { Mark, IconApps, IconDevices, IconUsers, IconAudit, IconLogout, IconCpu } from './Icons';
 import CmdSidebar from './CmdSidebar';
 import UpdateBanner from './UpdateBanner';
@@ -16,6 +17,7 @@ const NAV_ITEMS: Array<{ to: string; icon: typeof IconApps; label: string; match
 
 export default function Layout() {
   const { client, logout } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [me, setMe] = useState<WhoamiInfo | null>(null);
   const [serverName, setServerName] = useState<string>('');
@@ -65,7 +67,7 @@ export default function Layout() {
                 return 'navi' + (active ? ' on' : '');
               }}
             >
-              <Ic size={15} /> {label}
+              <Ic size={15} /> {t(label)}
             </NavLink>
           ))}
         </div>
@@ -77,7 +79,7 @@ export default function Layout() {
               <div className="lbl">{me ? `${me.role} · ${me.device_name}` : 'this device'}</div>
             </span>
           </div>
-          <button className="who lo" title="Logout" onClick={handleLogout}>
+          <button className="who lo" title={t('Logout')} onClick={handleLogout}>
             <IconLogout size={16} />
           </button>
         </div>
@@ -85,18 +87,18 @@ export default function Layout() {
       <UpdateBanner current={version} />
       <div className="strip">
         <span className="seg">
-          <span className="k">server</span>
+          <span className="k">{t('server')}</span>
           <span className="v">{serverName ? `${serverName} · ${window.location.host}` : (window.location.host || 'localhost')}</span>
         </span>
         <span className="seg">
-          <span className="k">auth</span>
+          <span className="k">{t('auth')}</span>
           <span className="dotlive">
             <i />
-            <span className="v">authenticated</span>
+            <span className="v">{t('authenticated')}</span>
           </span>
         </span>
         <span className="seg" style={{ marginLeft: 'auto' }}>
-          <span className="k">encryption</span>
+          <span className="k">{t('encryption')}</span>
           <span className="v">e2e / aes-256-gcm</span>
         </span>
       </div>
