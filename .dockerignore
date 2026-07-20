@@ -1,0 +1,21 @@
+# The image only needs the built dist/ and nginx.conf (build runs in CI).
+node_modules
+.git
+.github
+src
+public
+index.html
+package.json
+package-lock.json
+tsconfig.json
+tsconfig.app.json
+tsconfig.node.json
+vite.config.ts
+eslint.config.js
+.gitignore
+.DS_Store
+*.log
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE
