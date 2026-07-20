@@ -6,6 +6,19 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Security
+
+## [2.0.0] - 2026-07-16
+
+First tag-based release; the major aligns with the product version (CLI 2.x), the
+installer pins `ghcr.io/dotmage/web:2`.
+
+### Added
 - Users page: team members and pending invitations (team-mode servers); shows a friendly notice on solo-mode servers.
 - Audit log now shows which user performed each action.
 - Header shows who you are (name + role + device) instead of a hardcoded "admin".
