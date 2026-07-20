@@ -808,6 +808,29 @@ select {
 }
 .update-banner .x:hover { background: #fff }
 
+/* ===== settings page ===== */
+.settings-rows { display: flex; flex-direction: column; gap: 8px }
+.settings-rows > div { display: flex; align-items: baseline; gap: 12px }
+.settings-rows .k {
+  flex: 0 0 90px;
+  color: var(--faint);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.settings-rows .v { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; font-weight: 600 }
+.settings-rows .v .chip { font-weight: 600 }
+.switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600 }
+.switch input { width: 15px; height: 15px; accent-color: var(--ink); cursor: pointer }
+.rolesel {
+  font: inherit;
+  padding: 2px 6px;
+  border: 1.5px solid var(--line);
+  background: var(--paper2);
+  color: var(--ink);
+  cursor: pointer;
+}
+
 /* ===== security note in detail ===== */
 .secnote .d .cmdline { margin-top: 0; padding: 2px 7px; font-size: 11px; vertical-align: middle }
 

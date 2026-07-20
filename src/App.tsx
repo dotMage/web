@@ -8,6 +8,7 @@ import AppDetail from './pages/AppDetail';
 import Devices from './pages/Devices';
 import Users from './pages/Users';
 import Audit from './pages/Audit';
+import Settings from './pages/Settings';
 import './App.css';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -33,6 +34,7 @@ function AppRoutes() {
         <Route path="/devices" element={<Devices />} />
         <Route path="/users" element={<Users />} />
         <Route path="/audit" element={<Audit />} />
+        <Route path="/settings" element={<Settings />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

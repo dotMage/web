@@ -11,6 +11,7 @@ const NAV_ITEMS: Array<{ to: string; icon: typeof IconApps; label: string; match
   { to: '/devices', icon: IconDevices, label: 'Devices' },
   { to: '/users', icon: IconUsers, label: 'Users' },
   { to: '/audit', icon: IconAudit, label: 'Audit' },
+  { to: '/settings', icon: IconCpu, label: 'Settings' },
 ];
 
 export default function Layout() {

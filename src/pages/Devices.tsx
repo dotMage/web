@@ -1,10 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils';
-import { CmdChip } from '../components/CmdChip';
-import { IconBan, IconClock } from '../components/Icons';
+import { CmdChip, CmdLine } from '../components/CmdChip';
+import { IconBan, IconClock, IconPlus, IconDownload } from '../components/Icons';
 import { useToast } from '../context/ToastContext';
 import type { DeviceInfo } from '../api/client';
+
+interface TokenModal {
+  title: string;
+  note: string;
+  cmd: string; //  shown in a copyable CmdLine
+  link?: string; // optional clickable link (web login)
+}
 
 function daysUntil(dateStr: string): number {
   const cleaned = dateStr.replace(/\+00:00Z$/, 'Z').replace(/Z+$/, 'Z');
@@ -20,6 +27,45 @@ export default function Devices() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [revoking, setRevoking] = useState<DeviceInfo | null>(null);
+  const [tok, setTok] = useState<TokenModal | null>(null);
+  const [busy, setBusy] = useState(false);
+  const origin = window.location.origin;
+
+  async function addDevice() {
+    if (!client || busy) return;
+    setBusy(true);
+    try {
+      const { token } = await client.createEnrollToken('new-device', '15m', 'enrollment');
+      setTok({
+        title: 'Add a device',
+        note: 'One-time token, expires in 15 min. On the new machine, install dmage and run:',
+        cmd: `dmage auth --server ${origin} --enroll ${token}`,
+      });
+    } catch (e) {
+      toast('Could not create token', String(e), 'danger');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function webLogin() {
+    if (!client || busy) return;
+    setBusy(true);
+    try {
+      const { token } = await client.createEnrollToken('web-admin', '5m', 'web-admin');
+      const link = `${origin}/#token=${token}`;
+      setTok({
+        title: 'Web login link',
+        note: 'One-time link, expires in 5 min. Open it in a browser to sign in:',
+        cmd: link,
+        link,
+      });
+    } catch (e) {
+      toast('Could not create token', String(e), 'danger');
+    } finally {
+      setBusy(false);
+    }
+  }
 
   useEffect(() => {
     if (!client) return;
@@ -58,7 +104,25 @@ export default function Devices() {
       <div className="ph">
         <h1>Devices</h1>
         <span className="ct">{activeCount} active</span>
-        <CmdChip cmd="dmage devices" />
+        <span style={{ marginLeft: 'auto', display: 'inline-flex', gap: 8 }}>
+          <button className="btn ink" onClick={addDevice} disabled={busy}>
+            <IconPlus size={13} /> Add a device
+          </button>
+          <button className="btn ghost" onClick={webLogin} disabled={busy}>
+            <IconDownload size={13} /> Web login link
+          </button>
+        </span>
+      </div>
+      <div className="secnote" style={{ marginTop: 0, marginBottom: 18 }}>
+        <span className="ic"><IconClock size={20} /></span>
+        <div className="tx">
+          <p className="sub" style={{ marginTop: 0 }}>
+            Adding a machine mints a one-time token; you finish with your master password
+            on that machine — the browser never holds your key. A scoped CI token needs the
+            key too, so mint it from the CLI:
+          </p>
+          <CmdChip cmd="dmage gen-ci-token --app <app> --env <env>" />
+        </div>
       </div>
       {devices.length === 0 ? (
         <div className="empty">
@@ -122,6 +186,26 @@ export default function Devices() {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {tok && (
+        <div className="scrim" onClick={() => setTok(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="mh"><IconPlus size={17} /> {tok.title}</div>
+            <div className="mb">
+              <p>{tok.note}</p>
+              <CmdLine cmd={tok.cmd} />
+              {tok.link && (
+                <p className="sub">
+                  or <a href={tok.link} target="_blank" rel="noreferrer">open the link</a> in a new tab
+                </p>
+              )}
+              <div className="row">
+                <button className="btn ghost" onClick={() => setTok(null)}>Done</button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

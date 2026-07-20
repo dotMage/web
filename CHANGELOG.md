@@ -6,6 +6,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- Settings page: server version / mode / features, update status with a copy-paste upgrade
+  command, and a "follow dev channel" toggle (opt into prereleases in the update check).
+- Team management (team mode, owner only): change a member's role or remove a member from
+  the Users page. Inviting still needs the account key, so it stays a CLI action — the page
+  shows the exact `dmage user invite` command.
+- Add a device / Web login: mint a one-time enrollment token from the Devices page. "Add a
+  device" prints a ready `dmage auth --server … --enroll …` for the new machine; "Web login"
+  gives a one-time `#token` link. CI tokens embed the key, so they stay a CLI action (hinted).
 - Auto-login for `dmage open`: the admin panel reads a one-time login token from the URL
   fragment (`#token=…`), signs you in, and strips it from the address bar immediately. A
   failed/expired link shows a friendly notice on the login page.

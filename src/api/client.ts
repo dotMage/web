@@ -73,6 +73,13 @@ export interface HealthInfo {
   account_exists: boolean;
   features: string[];
   server_name?: string;
+  web_port?: number;
+  web_url?: string;
+}
+
+export interface EnrollToken {
+  token: string;
+  expires_at: string;
 }
 
 export interface WhoamiInfo {
@@ -231,5 +238,32 @@ export class DotMageClient {
       if (e instanceof Error && e.message.startsWith('HTTP 404')) return null;
       throw e;
     }
+  }
+
+  /** Change a team member's role (owner only). */
+  async changeUserRole(userId: string, role: string): Promise<void> {
+    await this.request(`/users/${encodeURIComponent(userId)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    });
+  }
+
+  /** Remove a team member — drops their key wraps and revokes their devices (owner only). */
+  async removeUser(userId: string): Promise<void> {
+    await this.request(`/users/${encodeURIComponent(userId)}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * Mint a one-time enrollment token for adding a device / web login.
+   * No AK involved — the new device unlocks its own key with the master password.
+   * `kind`: "enrollment" (CLI `dmage auth --enroll`) or "web-admin" (browser login).
+   */
+  async createEnrollToken(name: string, ttl: string, kind = 'enrollment'): Promise<EnrollToken> {
+    return this.request<EnrollToken>('/devices/enroll-token', {
+      method: 'POST',
+      body: JSON.stringify({ name, ttl, kind }),
+    });
   }
 }
