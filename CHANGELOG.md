@@ -5,6 +5,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-07-20
+
 ### Added
 - Settings page: server version / mode / features, update status with a copy-paste upgrade
   command, and a "follow dev channel" toggle (opt into prereleases in the update check).
