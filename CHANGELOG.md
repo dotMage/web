@@ -5,6 +5,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-07-22
+
 ### Added
 - Settings → Interface: a language switch (English / Русский) and a UI-scale control
   (100–150%) for high-DPI / 2K displays. Both persist in localStorage (`dotmage:lang`,
